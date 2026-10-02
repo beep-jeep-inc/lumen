@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pult.Core\Pult.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>PultAdmin</AssemblyName>
+    <ApplicationIcon>..\Pult.App\Assets\pult.ico</ApplicationIcon>
+    <AssemblyTitle>Lumen — помощник администратора</AssemblyTitle>
+    <Description>Lumen — помощник администратора</Description>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Помощник работает с правами администратора: без CoreCLR переменные DOTNET_STARTUP_HOOKS / CORECLR_PROFILER*
+         из окружения пользователя ни на что не влияют. Публикация: dotnet publish -c Release -r win-x64
+         (нужны MSVC Build Tools; папка Visual Studio\Installer с vswhere.exe — в PATH). -->
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+</Project>

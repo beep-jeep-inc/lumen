@@ -1,0 +1,452 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Pult.App.Views">
+  <!-- «Lumen v3 (Редакционный)»: чернильная основа, кремовая типографика, золото для подписей групп, фиолетовый для действий.
+       Значения — из «Lumen — спецификация WPF.md». Красный только для ошибок. Компактный режим — Layout.IsCompact (наследуется от окна). -->
+  <FontFamily x:Key="UiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+  <!-- Заголовки: Georgia, но цифры — Cambria (у Georgia цифры «старого стиля»: «600» читается как «6оо» в заголовке окна подтверждения) -->
+  <FontFamily x:Key="SerifFont" Baseline="0.917" LineSpacing="1.136">
+    <FontFamily.FamilyMaps>
+      <FontFamilyMap Unicode="0030-0039" Target="Cambria, Georgia, Times New Roman"/>
+      <FontFamilyMap Unicode="0000-10FFFF" Target="Georgia, Times New Roman"/>
+    </FontFamily.FamilyMaps>
+  </FontFamily>
+  <!-- Крупные числа плиток: у Georgia цифры «старого стиля» (0 как «о», 4 уходит вниз) — для чисел берём Cambria (строчные цифры одной высоты, есть в Windows) -->
+  <FontFamily x:Key="NumFont">Cambria, Georgia, Times New Roman</FontFamily>
+  <!-- Иконки: Segoe Fluent Icons (Windows 11), запасной Segoe MDL2 Assets (Windows 10) -->
+  <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+  <LinearGradientBrush x:Key="WindowBg" StartPoint="0,0" EndPoint="0,1">
+    <GradientStop Color="#0A0E1F" Offset="0"/>
+    <GradientStop Color="#12173A" Offset="1"/>
+  </LinearGradientBrush>
+  <!-- Мягкое фиолетовое свечение в правом верхнем углу (#6C5CE7, 12% → 0) -->
+  <RadialGradientBrush x:Key="GlowBrush" Center="1,0" GradientOrigin="1,0" RadiusX="0.75" RadiusY="0.95">
+    <GradientStop Color="#1F6C5CE7" Offset="0"/>
+    <GradientStop Color="#006C5CE7" Offset="1"/>
+  </RadialGradientBrush>
+
+  <!-- Поверхности и рамки -->
+  <SolidColorBrush x:Key="Card" Color="#151A33"/>
+  <SolidColorBrush x:Key="CardHover" Color="#1E2647"/>
+  <SolidColorBrush x:Key="CardPressed" Color="#12172C"/>
+  <SolidColorBrush x:Key="SurfaceRaised" Color="#1B2140"/>
+  <SolidColorBrush x:Key="CardBorder" Color="#2A3158"/>
+  <SolidColorBrush x:Key="CardBorderHover" Color="#48527D"/>
+  <SolidColorBrush x:Key="NavPanel" Color="#0B1022"/>
+  <SolidColorBrush x:Key="NavSelected" Color="#252747"/>
+  <SolidColorBrush x:Key="NavHover" Color="#191F37"/>
+  <SolidColorBrush x:Key="RowHover" Color="#0AFFFFFF"/>
+  <SolidColorBrush x:Key="Line" Color="#252D4E"/>
+  <SolidColorBrush x:Key="InputBg" Color="#0F142A"/>
+  <SolidColorBrush x:Key="Scrim" Color="#9E06091A"/>
+
+  <!-- Текст -->
+  <SolidColorBrush x:Key="Text" Color="#ECE7DC"/>
+  <SolidColorBrush x:Key="TextDim" Color="#AAB2CE"/>
+  <SolidColorBrush x:Key="TextMuted" Color="#858EB1"/>
+  <SolidColorBrush x:Key="Gold" Color="#E3B85C"/>
+
+  <!-- Акцент -->
+  <SolidColorBrush x:Key="Accent" Color="#8B7CF6"/>
+  <SolidColorBrush x:Key="AccentHover" Color="#9D90F8"/>
+  <SolidColorBrush x:Key="AccentPressed" Color="#7565D9"/>
+  <SolidColorBrush x:Key="OnAccent" Color="#0A0E1F"/>
+  <SolidColorBrush x:Key="FocusBrush" Color="#BEB4FF"/>
+
+  <!-- Состояния -->
+  <SolidColorBrush x:Key="Ok" Color="#5CC98B"/>
+  <SolidColorBrush x:Key="OkBg" Color="#19382F"/>
+  <SolidColorBrush x:Key="Warn" Color="#F2B84B"/>
+  <SolidColorBrush x:Key="WarnBg" Color="#302A27"/>
+  <SolidColorBrush x:Key="Err" Color="#F06A7A"/>
+  <SolidColorBrush x:Key="ErrText" Color="#F59AA5"/>
+  <SolidColorBrush x:Key="ErrBg" Color="#372338"/>
+  <SolidColorBrush x:Key="NeutralBg" Color="#2C314C"/>
+  <SolidColorBrush x:Key="DisabledBg" Color="#252B43"/>
+  <SolidColorBrush x:Key="DisabledText" Color="#7C86A6"/>
+  <SolidColorBrush x:Key="DisabledBorder" Color="#343D5B"/>
+
+  <!-- Фокус клавиатуры: внешняя рамка 2 DIP с отступом -->
+  <Style x:Key="FocusRing">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle Margin="-3" Stroke="{StaticResource FocusBrush}" StrokeThickness="2" RadiusX="12" RadiusY="12" SnapsToDevicePixels="True"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ===== Типографика ===== -->
+  <!-- Подпись раздела: ЗАГЛАВНЫМИ (разрядку даёт конвертер SpacedCaps) -->
+  <Style x:Key="Eyebrow" TargetType="TextBlock">
+    <Setter Property="Foreground" Value="{StaticResource Gold}"/>
+    <Setter Property="FontSize" Value="10.5"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="FontSize" Value="10"/></Trigger></Style.Triggers>
+  </Style>
+  <!-- Подпись страницы («Обслуживание · 2 октября»): приглушённая, перед ней золотая черта -->
+  <Style x:Key="EyebrowDim" TargetType="TextBlock" BasedOn="{StaticResource Eyebrow}">
+    <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+  </Style>
+  <Style x:Key="PageTitle" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource SerifFont}"/>
+    <Setter Property="FontSize" Value="32"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="FontSize" Value="26"/></Trigger></Style.Triggers>
+  </Style>
+  <Style x:Key="PageHint" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="13.5"/>
+    <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="FontSize" Value="12"/></Trigger></Style.Triggers>
+  </Style>
+  <!-- Значок-иконка (Segoe Fluent Icons) -->
+  <Style x:Key="Glyph" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
+    <Setter Property="FontSize" Value="18"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="IsHitTestVisible" Value="False"/>
+    <Setter Property="Focusable" Value="False"/>
+  </Style>
+
+  <Style x:Key="CardBorderStyle" TargetType="Border">
+    <Setter Property="Background" Value="{StaticResource Card}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource CardBorder}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="16"/>
+    <Setter Property="Padding" Value="20"/>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="Padding" Value="12"/><Setter Property="CornerRadius" Value="12"/></Trigger></Style.Triggers>
+  </Style>
+
+  <!-- ===== Кнопки ===== -->
+  <!-- Основная: фиолетовая заливка, тёмный текст (Semibold) -->
+  <Style x:Key="PrimaryButton" TargetType="Button">
+    <Setter Property="Foreground" Value="{StaticResource OnAccent}"/>
+    <Setter Property="Background" Value="{StaticResource Accent}"/>
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Padding" Value="16,8"/>
+    <Setter Property="MinHeight" Value="36"/>
+    <Setter Property="MinWidth" Value="84"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource AccentHover}"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource AccentPressed}"/></Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="b" Property="Background" Value="{StaticResource DisabledBg}"/>
+              <Setter Property="Foreground" Value="{StaticResource DisabledText}"/>
+              <Setter Property="Cursor" Value="Arrow"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="MinHeight" Value="34"/><Setter Property="FontSize" Value="12"/></Trigger></Style.Triggers>
+  </Style>
+
+  <!-- Второстепенная: контур -->
+  <Style x:Key="GhostButton" TargetType="Button">
+    <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Padding" Value="16,8"/>
+    <Setter Property="BorderBrush" Value="{StaticResource CardBorderHover}"/>
+    <Setter Property="MinHeight" Value="36"/>
+    <Setter Property="MinWidth" Value="84"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="b" Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource NavSelected}"/><Setter TargetName="b" Property="BorderBrush" Value="{StaticResource FocusBrush}"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource CardPressed}"/><Setter TargetName="b" Property="BorderBrush" Value="{StaticResource CardBorderHover}"/></Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="b" Property="BorderBrush" Value="{StaticResource DisabledBorder}"/>
+              <Setter Property="Foreground" Value="{StaticResource DisabledText}"/>
+              <Setter Property="Cursor" Value="Arrow"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="MinHeight" Value="34"/><Setter Property="FontSize" Value="12"/></Trigger></Style.Triggers>
+  </Style>
+
+  <!-- Опасная: красноватая заливка (для необратимых действий; запуск по-прежнему только после подтверждения) -->
+  <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource GhostButton}">
+    <Setter Property="Foreground" Value="{StaticResource ErrText}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="b" Background="{StaticResource ErrBg}" BorderBrush="{StaticResource Err}" BorderThickness="1" CornerRadius="10" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#482B3A"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Background" Value="#2C1C2A"/></Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="b" Property="Background" Value="{StaticResource DisabledBg}"/><Setter TargetName="b" Property="BorderBrush" Value="{StaticResource DisabledBorder}"/>
+              <Setter Property="Foreground" Value="{StaticResource DisabledText}"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Маленькая кнопка в строке списка -->
+  <Style x:Key="RowButton" TargetType="Button" BasedOn="{StaticResource GhostButton}">
+    <Setter Property="Padding" Value="10,5"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="FontWeight" Value="Normal"/>
+    <Setter Property="MinHeight" Value="28"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="MinHeight" Value="28"/><Setter Property="FontSize" Value="11.5"/></Trigger></Style.Triggers>
+  </Style>
+
+  <!-- Кнопка-ссылка в строке («Показать →»): без рамки, фиолетовый текст -->
+  <Style x:Key="LinkButton" TargetType="Button">
+    <Setter Property="Foreground" Value="{StaticResource AccentHover}"/>
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Padding" Value="8,5"/>
+    <Setter Property="MinHeight" Value="28"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="b" Background="Transparent" CornerRadius="8" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource NavSelected}"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource CardPressed}"/></Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter Property="Foreground" Value="{StaticResource DisabledText}"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Переключатель автозагрузки: 36×20, бегунок 14. Tag = включено ли; область нажатия не меньше 44×36. Положение меняет только модель после успешной команды. -->
+  <Style x:Key="SwitchButton" TargetType="Button">
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="MinWidth" Value="44"/>
+    <Setter Property="MinHeight" Value="28"/>
+    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Grid Background="Transparent">
+            <Border x:Name="track" Width="36" Height="20" CornerRadius="10" Background="{StaticResource NeutralBg}" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Ellipse x:Name="knob" Width="14" Height="14" Fill="{StaticResource TextDim}" HorizontalAlignment="Left" Margin="3,0,0,0"/>
+            </Border>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="Tag" Value="1">
+              <Setter TargetName="track" Property="Background" Value="{StaticResource Accent}"/>
+              <Setter TargetName="knob" Property="Fill" Value="{StaticResource Text}"/>
+              <Setter TargetName="knob" Property="HorizontalAlignment" Value="Right"/>
+              <Setter TargetName="knob" Property="Margin" Value="0,0,3,0"/>
+            </Trigger>
+            <MultiTrigger><MultiTrigger.Conditions><Condition Property="Tag" Value="0"/><Condition Property="IsMouseOver" Value="True"/></MultiTrigger.Conditions><Setter TargetName="track" Property="Background" Value="#3A4261"/></MultiTrigger>
+            <MultiTrigger><MultiTrigger.Conditions><Condition Property="Tag" Value="0"/><Condition Property="IsPressed" Value="True"/></MultiTrigger.Conditions><Setter TargetName="track" Property="Background" Value="#232B4B"/></MultiTrigger>
+            <MultiTrigger><MultiTrigger.Conditions><Condition Property="Tag" Value="1"/><Condition Property="IsMouseOver" Value="True"/></MultiTrigger.Conditions><Setter TargetName="track" Property="Background" Value="{StaticResource AccentHover}"/></MultiTrigger>
+            <MultiTrigger><MultiTrigger.Conditions><Condition Property="Tag" Value="1"/><Condition Property="IsPressed" Value="True"/></MultiTrigger.Conditions><Setter TargetName="track" Property="Background" Value="{StaticResource AccentPressed}"/></MultiTrigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="track" Property="Background" Value="{StaticResource DisabledBg}"/>
+              <Setter TargetName="knob" Property="Fill" Value="{StaticResource DisabledText}"/>
+              <Setter Property="Cursor" Value="Arrow"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Пункт бокового меню: радиус 12, выбранный — NavSelected и фиолетовая полоса слева -->
+  <Style x:Key="NavButton" TargetType="Button">
+    <Setter Property="Foreground" Value="{StaticResource TextDim}"/>
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    <Setter Property="FontSize" Value="12.5"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Margin" Value="0,0,0,2"/>
+    <Setter Property="MinHeight" Value="42"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="b" Background="Transparent" CornerRadius="12" Padding="12,10,8,10" MinHeight="{TemplateBinding MinHeight}">
+            <Grid>
+              <Border x:Name="bar" Width="2" Height="20" Background="{StaticResource Accent}" HorizontalAlignment="Left" Margin="-12,0,0,0" Visibility="Collapsed"/>
+              <ContentPresenter VerticalAlignment="Center" TextElement.Foreground="{TemplateBinding Foreground}"/>
+            </Grid>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource NavHover}"/><Setter Property="Foreground" Value="{StaticResource Text}"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource CardPressed}"/></Trigger>
+            <!-- Tag = "1" — пункт выбран -->
+            <Trigger Property="Tag" Value="1">
+              <Setter TargetName="b" Property="Background" Value="{StaticResource NavSelected}"/>
+              <Setter TargetName="bar" Property="Visibility" Value="Visible"/>
+              <Setter Property="Foreground" Value="{StaticResource Text}"/>
+              <Setter Property="FontWeight" Value="SemiBold"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="MinHeight" Value="40"/><Setter Property="FontSize" Value="11.5"/></Trigger></Style.Triggers>
+  </Style>
+
+  <!-- Плитка «Обзора»: Surface, рамка 1, радиус 16; при наведении SurfaceHover и BorderHover, без свечения и увеличения -->
+  <Style x:Key="TileButton" TargetType="Button">
+    <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    <Setter Property="FontSize" Value="40"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+    <Setter Property="MinHeight" Value="168"/>
+    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="b" Background="{StaticResource Card}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="16" Padding="20">
+            <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="BorderBrush" Value="{StaticResource CardBorderHover}"/><Setter TargetName="b" Property="Background" Value="{StaticResource CardHover}"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Background" Value="{StaticResource CardPressed}"/></Trigger>
+            <Trigger Property="local:Layout.IsCompact" Value="True"><Setter TargetName="b" Property="Padding" Value="12"/><Setter TargetName="b" Property="CornerRadius" Value="12"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="FontSize" Value="30"/><Setter Property="MinHeight" Value="112"/></Trigger></Style.Triggers>
+  </Style>
+  <!-- Две широкие плитки сверху: крупнее число -->
+  <Style x:Key="TileButtonWide" TargetType="Button" BasedOn="{StaticResource TileButton}">
+    <Setter Property="FontSize" Value="48"/>
+    <Style.Triggers><Trigger Property="local:Layout.IsCompact" Value="True"><Setter Property="FontSize" Value="34"/></Trigger></Style.Triggers>
+  </Style>
+
+  <!-- Тонкая тёмная полоса прокрутки -->
+  <Style TargetType="ScrollBar">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Width" Value="8"/>
+    <Setter Property="MinWidth" Value="8"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ScrollBar">
+          <Grid Background="Transparent">
+            <Track x:Name="PART_Track" IsDirectionReversed="True">
+              <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False" IsTabStop="False"/></Track.DecreaseRepeatButton>
+              <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False" IsTabStop="False"/></Track.IncreaseRepeatButton>
+              <Track.Thumb>
+                <Thumb>
+                  <Thumb.Template>
+                    <ControlTemplate TargetType="Thumb">
+                      <Border x:Name="t" Background="#3A4275" CornerRadius="4" Margin="1"/>
+                      <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="t" Property="Background" Value="#555E96"/></Trigger></ControlTemplate.Triggers>
+                    </ControlTemplate>
+                  </Thumb.Template>
+                </Thumb>
+              </Track.Thumb>
+            </Track>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+              <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers>
+      <Trigger Property="Orientation" Value="Horizontal">
+        <Setter Property="Width" Value="Auto"/><Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Height" Value="8"/><Setter Property="MinHeight" Value="8"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+  <!-- Поле ввода (окно с вопросом): InputBg, рамка BorderHover, радиус 10; фокус — Accent 2 -->
+  <Style TargetType="TextBox">
+    <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    <Setter Property="Background" Value="{StaticResource InputBg}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource CardBorderHover}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Padding" Value="10,7"/>
+    <Setter Property="CaretBrush" Value="{StaticResource Text}"/>
+    <Setter Property="SelectionBrush" Value="{StaticResource Accent}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="TextBox">
+          <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
+            <ScrollViewer x:Name="PART_ContentHost" Padding="{TemplateBinding Padding}" Focusable="False"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource Accent}"/><Setter TargetName="bd" Property="BorderThickness" Value="2"/></Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="bd" Property="Background" Value="{StaticResource DisabledBg}"/><Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource DisabledBorder}"/><Setter Property="Foreground" Value="{StaticResource DisabledText}"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Флажок 18×18, радиус 5: InputBg, при выборе — Accent и белая галочка -->
+  <Style TargetType="CheckBox">
+    <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Grid Background="Transparent">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Border x:Name="box" Width="18" Height="18" CornerRadius="5" Background="{StaticResource InputBg}" BorderBrush="#4A5288" BorderThickness="1" VerticalAlignment="Center">
+              <Path x:Name="tick" Data="M4,9 L7.5,12.5 L14,5.5" Stroke="White" StrokeThickness="2" Visibility="Collapsed" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+            </Border>
+            <ContentPresenter Grid.Column="1" Margin="9,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True" TextElement.Foreground="{TemplateBinding Foreground}"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="box" Property="Background" Value="{StaticResource Accent}"/>
+              <Setter TargetName="box" Property="BorderBrush" Value="{StaticResource Accent}"/>
+              <Setter TargetName="tick" Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="box" Property="BorderBrush" Value="{StaticResource AccentHover}"/></Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="box" Property="Background" Value="{StaticResource DisabledBg}"/>
+              <Setter TargetName="box" Property="BorderBrush" Value="{StaticResource DisabledBorder}"/>
+              <Setter TargetName="tick" Property="Stroke" Value="{StaticResource DisabledText}"/>
+              <Setter Property="Cursor" Value="Arrow"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>

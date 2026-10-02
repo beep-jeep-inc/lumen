@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pult.Core\Pult.Core.csproj" />
+  </ItemGroup>
+
+  <!-- publish.ps1 публикует PultAdmin.exe первым и передаёт его SHA256: -p:ExpectedAdminSha256=<hash>. Без него (обычная сборка) пульт не ставит и не обновляет помощника. -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>AdminSha256</_Parameter1>
+      <_Parameter2>$(ExpectedAdminSha256)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Pult</AssemblyName>
+    <ApplicationIcon>Assets\pult.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\pult.ico" />
+  </ItemGroup>
+
+</Project>
+
